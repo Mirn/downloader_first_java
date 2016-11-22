@@ -3,11 +3,11 @@
  */
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class Main {
 
-    public static void main (String[] args) {
+    public static void main (String[] args)
+    {
         if (args.length < 2) {
             System.out.println("HTML files multi thread downloader");
             System.out.println("USAGE: downloader <link_list> <threads_count>");

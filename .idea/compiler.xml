@@ -19,8 +19,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="MTDHML_main" target="1.5" />
-      <module name="MTDHML_test" target="1.5" />
+      <module name="downloader_first_java_main" target="1.8" />
+      <module name="downloader_first_java_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
