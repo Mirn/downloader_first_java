@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Misc_Utils {
     public static List<String> load_list(String file_name)
-            throws IOException
     {
         File f = null;
         BufferedReader in = null;
@@ -45,16 +45,18 @@ public class Misc_Utils {
             e.printStackTrace();
         }
 
-        finally
-        {
-            if (in != null) in.close();
-            if (fr != null) fr.close();
+        finally {
+            try {
+                if (in != null) in.close();
+                if (fr != null) fr.close();
+            } catch (IOException e) {
+            }
         }
 
         return list;
     }
 
-    public static int task_list_parse(List<String> strings_list, List<Task_item> task_list)  throws IOException
+    public static int task_list_parse(List<String> strings_list, List<Task_item> task_list)
     {
         for (int line_num = 0; line_num < strings_list.size(); line_num++)
         {
@@ -71,14 +73,13 @@ public class Misc_Utils {
         return task_list.size();
     }
 
-    public static boolean load_file(String url_link, String file_name)
-    {
+    public static boolean load_file(String url_link, String file_name, AtomicLong stat_rx, Speed_limitter limitter) throws InterruptedException {
         URL url = null;
         InputStream is = null;
         BufferedInputStream inputStream = null;
         FileOutputStream file_out = null;
 
-        int BLOCK_SIZE = 1024;
+        int BLOCK_SIZE = 512;
         byte[] buf = new byte[BLOCK_SIZE];
 
         try
@@ -104,8 +105,14 @@ public class Misc_Utils {
                 if (cnt == 0)
                     continue;
 
+                if (limitter != null)
+                    while (!limitter.check_ready(cnt))
+                        Thread.sleep(1);
+
+                stat_rx.addAndGet(cnt);
+
                 file_out.write(buf, 0, cnt);
-                System.out.print(".");
+                //System.out.print(".");
                 //System.out.println("rd:\t" + cnt + "\tinputStream.available():\t" + inputStream.available());
             }
             return true;

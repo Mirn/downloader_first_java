@@ -3,22 +3,36 @@
  */
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Main {
 
-    public static void main (String[] args) throws IOException, InterruptedException {
+    public static void main (String[] args) {
         if (args.length < 2) {
             System.out.println("HTML files multi thread downloader");
-            System.out.println("USAGE: downloader <link_list> <threads count>");
+            System.out.println("USAGE: downloader <link_list> <threads_count>");
             System.out.println();
             System.exit(1);
         }
 
-        String list_fname = args[0];
-        System.out.println("Load task list from: " + list_fname);
+        String arg_list_fname = args[0];
+        String arg_threads_count = args[1];
+
+        int threads_count = 1;
+        try
+        {
+            threads_count = Integer.parseInt(arg_threads_count);
+        }
+        catch (NumberFormatException e)
+        {
+            System.err.println("ERROR: threads_count invalid number (param #2), string:" + arg_threads_count);
+            System.exit(1);
+        }
+
+        System.out.println("Load task list from: " + arg_list_fname);
 
         List<Task_item> task_list = Collections.synchronizedList(new LinkedList<Task_item>());
-        List<String> loaded_list = Misc_Utils.load_list(list_fname);
+        List<String> loaded_list = Misc_Utils.load_list(arg_list_fname);
         Misc_Utils.task_list_parse(loaded_list, task_list);
 
         if (task_list.size() <= 0)
@@ -29,17 +43,20 @@ public class Main {
         else
             System.out.println("Load task list done\n");
 
-        //System.exit(1);
-        //Misc_Utils.load_file("http://78.47.239.56:62978/test/Mikuni.pk", "test_file.dat");
-
-        Download_thread[] workers = new Download_thread[4];
+        Download_thread[] workers = new Download_thread[threads_count];
+        Speed_limitter limitter = new Speed_limitter("Limitter", 850);
 
         for (int pos = 0; pos < workers.length; pos++)
-            workers[pos] = new Download_thread(task_list, "T" + pos);
+            workers[pos] = new Download_thread("T" + pos, task_list, limitter);
+
+        for (int pos = 0; pos < workers.length; pos++)
+            System.out.print(workers[pos].getName() + "\t");;
+        System.out.println("\tSpeed");
 
         for (int pos = 0; pos < workers.length; pos++)
             workers[pos].start();
 
+        long rxed_old = 0;
         int workers_runned = workers.length;
         while (workers_runned > 0)
         {
@@ -48,10 +65,32 @@ public class Main {
                 if (workers[pos].isAlive())
                     workers_runned++;
 
-            Thread.sleep(1000);
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e)
+            {
+                System.err.println("Interrupted");
+                System.exit(1);
+            }
+
+            long rxed_new = 0;
+            for (int pos = 0; pos < workers.length; pos++)
+            {
+                long current = workers[pos].RXed_get();
+                rxed_new += current;
+                System.out.print(current + "\t");
+            }
+
+            long speed = rxed_new - rxed_old;
+            rxed_old = rxed_new;
+
+            System.out.println("\t" + speed);
         }
 
         System.out.println("");
         System.out.println("ALL DONE");
+        System.exit(0);
     }
 }
