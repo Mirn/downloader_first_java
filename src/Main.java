@@ -11,12 +11,17 @@ public class Main {
         long time_start = System.currentTimeMillis();
 
         Cmd_params params = Cmd_params.parse_args(args);
+        if ((params == null) || (!params.valid()))
+        {
+            Cmd_params.print_help();
+            System.exit(1);
+        }
 
         List<Task_item> done_list = Collections.synchronizedList(new LinkedList<Task_item>());
-        List<Task_item> task_list = task_list_load(params.task_list_fname, params.results_dir);
+        List<Task_item> task_list = task_list_load(params.getTask_list_fname(), params.getResults_dir());
 
-        Download_thread[] workers = new Download_thread[params.threads_count];
-        Speed_limitter limitter = new Speed_limitter("Limitter", params.speed_limit_kbs);
+        Download_thread[] workers = new Download_thread[params.getThreads_count()];
+        Speed_limitter limitter = new Speed_limitter("Limitter", params.getSpeed_limit_kbs());
 
         for (int pos = 0; pos < workers.length; pos++)
             workers[pos] = new Download_thread("T" + pos, task_list, done_list, limitter);
@@ -123,6 +128,20 @@ public class Main {
         System.out.println("files ignored    : " + stat_ignored);
         System.out.println("received bytes   : " + stat_rxed);
         System.out.println("work time        : " + stat_time_work + " sec");
-        System.out.println("Download speed   : " + (double)stat_rxed / stat_time_work + " bytes/sec");
+        System.out.println("Download speed   : " + (int)(stat_rxed / stat_time_work) + " bytes/sec");
     }
 }
+
+/*
+TODO
+1 sys exit убрать
+2 this(1, Integer.MAX_VALUE, "", "");
+3 toString
+4 arraylist hash
+5 try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
+6 убрать continue cmd_params
+7 while (task_list.size() > 0) & remove atomic
+8 while (!limitter.check_ready(cnt))   Thread.sleep(1); -->wait
+9 try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
+10 паблик поля убрать
+ */

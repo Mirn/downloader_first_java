@@ -59,11 +59,11 @@ final public class Misc_Utils {
             String str = strings_list.get(line_num);
             Task_item task_item = Task_item.parse_string(str, subdir, line_num + 1);
 
-            if (task_item == null)
-                continue;
-
-            task_list.add(task_item);
-            //System.out.println("OK: " + task_item.to_string());
+            if (task_item != null)
+            {
+                task_list.add(task_item);
+                //System.out.println("OK: " + task_item.to_string());
+            }
         }
 
         return task_list.size();
@@ -97,11 +97,8 @@ final public class Misc_Utils {
             inputStream = new BufferedInputStream(is);
 
             int cnt = 0;
-            while ((cnt = inputStream.read(buf)) >= 0)
+            while ((cnt = inputStream.read(buf)) > 0)
             {
-                if (cnt == 0)
-                    continue;
-
                 if (limitter != null)
                     while (!limitter.check_ready(cnt))
                         Thread.sleep(1);

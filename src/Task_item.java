@@ -2,8 +2,8 @@
  * Created by Easy on 2016.11.18.
  */
 final public class Task_item {
-    public String url_link;
-    public String file_name;
+    private String url_link;
+    private String file_name;
 
     public Task_item(String url, String fname)
     {
@@ -11,10 +11,7 @@ final public class Task_item {
         this.file_name = fname;
     }
 
-    String to_string()
-    {
-        return "\"" + url_link + "\"\t\"" + file_name + "\"";
-    }
+    public String toString(){return "\"" + url_link + "\"\t\"" + file_name + "\""; }
 
     public static Task_item parse_string(String str, String subdir, int line_num)
     {
@@ -44,5 +41,13 @@ final public class Task_item {
         }
 
         return new Task_item(url_link, subdir + file_name);
+    }
+
+    public String getUrl_link() {
+        return url_link;
+    }
+
+    public String getFile_name() {
+        return file_name;
     }
 }

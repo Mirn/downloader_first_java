@@ -4,25 +4,39 @@ import java.io.File;
  * Created by Easy on 2016.11.23.
  */
 final public class Cmd_params {
-    public int threads_count;
-    public int speed_limit_kbs;
-    public String task_list_fname;
-    public String results_dir;
+    private int threads_count;
+    private int speed_limit_kbs;
+    private String task_list_fname;
+    private String results_dir;
 
-    public Cmd_params()
+    private Cmd_params()
     {
-        threads_count = 1;
-        speed_limit_kbs = Integer.MAX_VALUE;
-        task_list_fname = "";
-        results_dir = "";
+        this(1, Integer.MAX_VALUE, "", "");
     }
 
-    public Cmd_params(int threads, int limit, String task_list, String res_dir)
+    private Cmd_params(int threads, int limit, String task_list, String res_dir)
     {
         threads_count = threads;
         speed_limit_kbs = limit;
         task_list_fname = task_list;
         results_dir = res_dir;
+    }
+
+
+    public int getThreads_count() {
+        return threads_count;
+    }
+
+    public int getSpeed_limit_kbs() {
+        return speed_limit_kbs;
+    }
+
+    public String getTask_list_fname() {
+        return task_list_fname;
+    }
+
+    public String getResults_dir() {
+        return results_dir;
     }
 
     public boolean valid()
@@ -54,13 +68,6 @@ final public class Cmd_params {
         System.out.println();
         System.out.println("В HTTP ссылке нет пробелов, нет encoded символов и прочей ерунды - это всегда обычные ссылки с английскими символами без специальных символов в именах файлов и прочее. Короче - ссылкам можно не делать decode. Ссылки без авторизации, не HTTPS/FTP - всегда только HTTP-протокол.");
         System.out.println();
-    }
-
-    public static void error_help_and_exit(String err_msg)
-    {
-        System.err.println(err_msg);
-        print_help();
-        System.exit(1);
     }
 
     public void print_all()
@@ -107,7 +114,7 @@ final public class Cmd_params {
                 }
                 catch (NumberFormatException e)
                 {
-                    error_help_and_exit("ERROR: threads_count invalid number: " + value);
+                    System.err.println("ERROR: threads_count invalid number: " + value);
                 }
                 continue;
             }
@@ -127,7 +134,7 @@ final public class Cmd_params {
                 }
                 catch (NumberFormatException e)
                 {
-                    error_help_and_exit("ERROR: speed_limit invalid number: " + value);
+                    System.err.println("ERROR: speed_limit invalid number: " + value);
                 }
                 continue;
             }
@@ -135,9 +142,6 @@ final public class Cmd_params {
             System.err.println("ERROR: unknown parameter : " + key);
             pos--;
         };
-
-        if (!params.valid())
-            error_help_and_exit("FATAL ERROR: parameters not valid");
 
         params.print_all();
         return params;

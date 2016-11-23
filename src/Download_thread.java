@@ -85,12 +85,12 @@ final public class Download_thread extends Thread {
             Task_item item = done_list.get(pos);
             pos++;
 
-            if (item.url_link.equals(task.url_link))
+            if (item.getUrl_link().equals(task.getUrl_link()))
             {
-                if (item.file_name.equals(task.file_name))
+                if (item.getFile_name().equals(task.getFile_name()))
                     stat_files_ignored.incrementAndGet();
                 else {
-                    if (file_copy(item.file_name, task.file_name))
+                    if (file_copy(item.getFile_name(), task.getFile_name()))
                         stat_files_copied.incrementAndGet();
                     else
                         stat_files_failed.incrementAndGet();
@@ -105,22 +105,29 @@ final public class Download_thread extends Thread {
     {
         try
         {
+            boolean task_not_empty = task_list.size() > 0;
             //System.out.println("Start thread: " + this.getName());
-            while (task_list.size() > 0)
+            while (task_not_empty)
             {
-                Task_item task = task_list.remove(0);
-
-                if (find_and_copy(task))
-                    continue;
+                Task_item task = null;
+                synchronized (task_list) {
+                    task_not_empty = task_list.size() > 0;
+                    if (!task_not_empty) break;
+                    task = task_list.remove(0);
+                }
 
                 //System.out.println("Thread " + this.getName() + "; New task: " + task.to_string());
-                if (Misc_Utils.load_file(task.url_link, task.file_name, stat_rxed, limitter))
-                {
-                    done_list.add(task);
-                    stat_files_downloaded.incrementAndGet();
+
+                if (!find_and_copy(task)){
+                    if (Misc_Utils.load_file(task.getUrl_link(), task.getFile_name(), stat_rxed, limitter))
+                    {
+                        done_list.add(task);
+                        stat_files_downloaded.incrementAndGet();
+                    }
+                    else
+                        stat_files_failed.incrementAndGet();
                 }
-                else
-                    stat_files_failed.incrementAndGet();
+
                 Thread.sleep(0);
             }
         }
@@ -131,6 +138,7 @@ final public class Download_thread extends Thread {
         catch (IndexOutOfBoundsException e)
         {
             //for case if tasks.size() = 0, but another thread delete last item between tasks.size and tasks.remove
+            //fixed
             return;
         }
     }
