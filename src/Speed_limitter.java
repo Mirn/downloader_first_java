@@ -3,7 +3,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by Easy on 2016.11.22.
  */
-public class Speed_limitter extends Thread {
+final public class Speed_limitter extends Thread {
     private long speed_limit;
     private AtomicLong current_limit;
 

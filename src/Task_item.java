@@ -1,7 +1,7 @@
 /**
  * Created by Easy on 2016.11.18.
  */
-public class Task_item {
+final public class Task_item {
     public String url_link;
     public String file_name;
 
@@ -16,7 +16,7 @@ public class Task_item {
         return "\"" + url_link + "\"\t\"" + file_name + "\"";
     }
 
-    public static Task_item parse_string(String str, int line_num)
+    public static Task_item parse_string(String str, String subdir, int line_num)
     {
         String url_link;
         String file_name;
@@ -43,6 +43,6 @@ public class Task_item {
             return null;
         }
 
-        return new Task_item(url_link, file_name);
+        return new Task_item(url_link, subdir + file_name);
     }
 }

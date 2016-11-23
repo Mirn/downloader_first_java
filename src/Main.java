@@ -13,17 +13,7 @@ public class Main {
         Cmd_params params = Cmd_params.parse_args(args);
 
         List<Task_item> done_list = Collections.synchronizedList(new LinkedList<Task_item>());
-        List<Task_item> task_list = Collections.synchronizedList(new LinkedList<Task_item>());
-        List<String> loaded_list = Misc_Utils.load_list(params.task_list_fname);
-        Misc_Utils.task_list_parse(loaded_list, task_list);
-
-        if (task_list.size() <= 0)
-        {
-            System.err.println("FATAL ERROR: nothing to do");
-            System.exit(1);
-        }
-        else
-            System.out.println("Load task list from: " + params.task_list_fname + " done\n");
+        List<Task_item> task_list = task_list_load(params.task_list_fname, params.results_dir);
 
         Download_thread[] workers = new Download_thread[params.threads_count];
         Speed_limitter limitter = new Speed_limitter("Limitter", params.speed_limit_kbs);
@@ -40,16 +30,26 @@ public class Main {
 
         long rxed_old = 0;
         int workers_runned = workers.length;
+        long time_old = System.currentTimeMillis();
+        long time_period = 0;
         while (workers_runned > 0)
         {
-            workers_runned = 0;
-            for (int pos = 0; pos < workers.length; pos++)
-                if (workers[pos].isAlive())
-                    workers_runned++;
-
             try
             {
-                Thread.sleep(1000);
+                while (System.currentTimeMillis() - time_old < 1000)
+                {
+                    workers_runned = 0;
+                    for (int pos = 0; pos < workers.length; pos++)
+                        if (workers[pos].isAlive())
+                            workers_runned++;
+
+                    if (workers_runned == 0)
+                        break;
+
+                    Thread.sleep(1);
+                }
+                time_period = System.currentTimeMillis() - time_old;
+                time_old = System.currentTimeMillis();
             }
             catch (InterruptedException e)
             {
@@ -65,7 +65,7 @@ public class Main {
                 System.out.print(current + "\t");
             }
 
-            long speed = rxed_new - rxed_old;
+            long speed = ((rxed_new - rxed_old) * 1000) / time_period;
             rxed_old = rxed_new;
 
             System.out.println("\t" + speed);
@@ -81,12 +81,30 @@ public class Main {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    static List<Task_item> task_list_load(String fname, String subdir)
+    {
+        List<Task_item> task_list = Collections.synchronizedList(new LinkedList<Task_item>());
+        List<String> loaded_list = Misc_Utils.load_list(fname);
+        Misc_Utils.task_list_parse(loaded_list, task_list, subdir);
+
+        if (task_list.size() <= 0)
+        {
+            System.err.println("FATAL ERROR: nothing to do");
+            System.exit(1);
+        }
+        else
+            System.out.println("Load task list from: " + fname + " done\n");
+
+        return task_list;
+    };
+
     static void print_statistics(Download_thread[] workers, long work_time_ms)
     {
         long stat_rxed = 0;
         int stat_copied = 0;
         int stat_downloaded = 0;
         int stat_failed = 0;
+        int stat_ignored = 0;
         double stat_time_work = (work_time_ms) / 1000.0;
 
         for (int pos = 0; pos < workers.length; pos++)
@@ -95,13 +113,16 @@ public class Main {
             stat_copied     += workers[pos].stat_files_copied();
             stat_downloaded += workers[pos].stat_files_downloaded();
             stat_failed     += workers[pos].stat_files_failed();
+            stat_ignored    += workers[pos].stat_files_ignored();
         }
 
         System.out.println("Statistics:");
         System.out.println("files copied     : " + stat_copied);
         System.out.println("files downloaded : " + stat_downloaded);
         System.out.println("files failed     : " + stat_failed);
+        System.out.println("files ignored    : " + stat_ignored);
         System.out.println("received bytes   : " + stat_rxed);
         System.out.println("work time        : " + stat_time_work + " sec");
+        System.out.println("Download speed   : " + (double)stat_rxed / stat_time_work + " bytes/sec");
     }
 }

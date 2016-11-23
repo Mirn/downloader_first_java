@@ -1,7 +1,9 @@
+import java.io.File;
+
 /**
  * Created by Easy on 2016.11.23.
  */
-public class Cmd_params {
+final public class Cmd_params {
     public int threads_count;
     public int speed_limit_kbs;
     public String task_list_fname;
@@ -61,6 +63,16 @@ public class Cmd_params {
         System.exit(1);
     }
 
+    public void print_all()
+    {
+        System.out.println("Params:");
+        System.out.println("\t.Threads_count   : " + threads_count);
+        System.out.println("\t.speed_limit_kbs : " + speed_limit_kbs);
+        System.out.println("\t.task_list_fname : " + task_list_fname);
+        System.out.println("\t.results_dir     : " + results_dir);
+        System.out.println();
+    }
+
     static Cmd_params parse_args(String[] args)
     {
         Cmd_params params = new Cmd_params();
@@ -80,6 +92,9 @@ public class Cmd_params {
 
             if (key.equals("-o"))
             {
+                if (value.charAt(value.length()-1) != File.separatorChar)
+                        value = value + File.separatorChar;
+
                 params.results_dir = value;
                 continue;
             }
@@ -124,6 +139,7 @@ public class Cmd_params {
         if (!params.valid())
             error_help_and_exit("FATAL ERROR: parameters not valid");
 
+        params.print_all();
         return params;
     }
 }

@@ -1,15 +1,11 @@
-import com.sun.corba.se.impl.logging.InterceptorsSystemException;
-
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Misc_Utils {
+final public class Misc_Utils {
     public static List<String> load_list(String file_name)
     {
         File f = null;
@@ -56,12 +52,12 @@ public class Misc_Utils {
         return list;
     }
 
-    public static int task_list_parse(List<String> strings_list, List<Task_item> task_list)
+    public static int task_list_parse(List<String> strings_list, List<Task_item> task_list, String subdir)
     {
         for (int line_num = 0; line_num < strings_list.size(); line_num++)
         {
             String str = strings_list.get(line_num);
-            Task_item task_item = Task_item.parse_string(str, line_num + 1);
+            Task_item task_item = Task_item.parse_string(str, subdir, line_num + 1);
 
             if (task_item == null)
                 continue;

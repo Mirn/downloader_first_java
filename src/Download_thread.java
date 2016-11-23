@@ -7,32 +7,36 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by Easy on 2016.11.21.
  */
-public class Download_thread extends Thread {
+final public class Download_thread extends Thread {
     private List<Task_item> done_list;
     private List<Task_item> task_list;
-    private AtomicLong stat_rx;
+    private AtomicLong stat_rxed;
     private AtomicInteger stat_files_copied;
     private AtomicInteger stat_files_downloaded;
     private AtomicInteger stat_files_failed;
+    private AtomicInteger stat_files_ignored;
     private Speed_limitter limitter;
 
     public Download_thread(String name, List<Task_item> tlist, List<Task_item> dlist, Speed_limitter lim)
     {
         super(name);
-        stat_rx = new AtomicLong(0);
+        stat_rxed = new AtomicLong(0);
         stat_files_copied = new AtomicInteger(0);
         stat_files_downloaded = new AtomicInteger(0);
         stat_files_failed = new AtomicInteger(0);
+        stat_files_ignored = new AtomicInteger(0);
+
         task_list = tlist;
         done_list = dlist;
         limitter = lim;
         //System.out.println("Create thread: " + this.getName());
     };
 
-    public long stat_total_RXed(){return stat_rx.get(); }
+    public long stat_total_RXed(){return stat_rxed.get(); }
     public long stat_files_copied(){return stat_files_copied.get(); }
     public long stat_files_downloaded(){return stat_files_downloaded.get(); }
     public long stat_files_failed(){return stat_files_failed.get(); }
+    public long stat_files_ignored(){return stat_files_ignored.get(); }
 
     private boolean file_copy(String from, String to)
     {
@@ -74,19 +78,26 @@ public class Download_thread extends Thread {
 
     private boolean find_and_copy(Task_item task)
     {
-        for(Task_item item : done_list)
+        int pos = 0;
+        while (pos < done_list.size())
+        //for(Task_item item : done_list) //commented for avoid ConcurrentModificationException
         {
-            //System.out.println(item.url_link + "\t" + task.url_link);
+            Task_item item = done_list.get(pos);
+            pos++;
+
             if (item.url_link.equals(task.url_link))
             {
-                if (file_copy(item.file_name, task.file_name))
-                    stat_files_copied.incrementAndGet();
-                else
-                    stat_files_failed.incrementAndGet();
+                if (item.file_name.equals(task.file_name))
+                    stat_files_ignored.incrementAndGet();
+                else {
+                    if (file_copy(item.file_name, task.file_name))
+                        stat_files_copied.incrementAndGet();
+                    else
+                        stat_files_failed.incrementAndGet();
+                }
                 return true;
             }
         }
-        //System.out.println();
         return false;
     }
 
@@ -103,14 +114,14 @@ public class Download_thread extends Thread {
                     continue;
 
                 //System.out.println("Thread " + this.getName() + "; New task: " + task.to_string());
-                if (Misc_Utils.load_file(task.url_link, task.file_name, stat_rx, limitter))
+                if (Misc_Utils.load_file(task.url_link, task.file_name, stat_rxed, limitter))
                 {
                     done_list.add(task);
                     stat_files_downloaded.incrementAndGet();
                 }
                 else
                     stat_files_failed.incrementAndGet();
-                Thread.sleep(1);
+                Thread.sleep(0);
             }
         }
         catch (InterruptedException e)
