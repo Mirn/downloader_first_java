@@ -1,7 +1,8 @@
 /**
  * Created by Easy on 2016.11.15.
  */
-import java.io.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 public class Main {
@@ -37,19 +38,18 @@ public class Main {
 
         long rxed_old = 0;
         long time_old = System.currentTimeMillis();
-        long time_period = 0;
         while (downloads_pool.isAlive_count() > 0)
         {
-            downloads_pool.run_second();
+            downloads_pool.wait_all(1000);
 
-            time_period = System.currentTimeMillis() - time_old;
+            long time_period = System.currentTimeMillis() - time_old;
             time_old = System.currentTimeMillis();
 
             long rxed_new = downloads_pool.all_total_rxed();
-            long speed = ((rxed_new - rxed_old) * 1000) / time_period;
+            long speed = ((rxed_new - rxed_old) * 1000) / Math.max(1, time_period);
             rxed_old = rxed_new;
 
-            System.out.println(downloads_pool.stat_rxed_string() + "\t" + speed);
+            System.out.println(downloads_pool.stat_rxed_string() + "\t" + speed); // + "\t\t" + time_period);
         }
         System.out.println("ALL DONE");
         System.out.println();
@@ -71,6 +71,15 @@ public class Main {
         return task_list;
     };
 
+    static String long_formatter(long v)
+    {
+        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+        symbols.setGroupingSeparator(' ');
+
+        DecimalFormat formatter = new DecimalFormat("###,###.##", symbols);
+        return formatter.format(v);
+    }
+
     static void print_statistics(Downloads_pool downloads_pool, long work_time_ms)
     {
         double stat_time_work = (work_time_ms) / 1000.0;
@@ -80,9 +89,10 @@ public class Main {
         System.out.println("files downloaded : " + downloads_pool.all_files_downloaded());
         System.out.println("files failed     : " + downloads_pool.all_files_failed());
         System.out.println("files ignored    : " + downloads_pool.all_files_ignored());
-        System.out.println("received bytes   : " + downloads_pool.all_total_rxed());
+        System.out.println("received total   : " + long_formatter(downloads_pool.all_total_rxed()) + " bytes");
         System.out.println("work time        : " + stat_time_work + " sec");
-        System.out.println("Download speed   : " + (int)(downloads_pool.all_total_rxed() / stat_time_work) + " bytes/sec");
+        System.out.println("Download speed   : " +
+                long_formatter((long)(downloads_pool.all_total_rxed() / stat_time_work)) + " bytes/sec");
     }
 }
 

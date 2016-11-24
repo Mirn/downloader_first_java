@@ -37,19 +37,23 @@ final public class Downloads_pool {
         return count;
     }
 
-    public boolean run_second()
+    public boolean wait_all(int mSec)
     {
         long time_old = System.currentTimeMillis();
-        int pos = 0;
-        while (System.currentTimeMillis() - time_old < 1000)
+        int worker_num = 0;
+        while (System.currentTimeMillis() - time_old < mSec)
         {
             if (this.isAlive_count() == 0)
                 return true;
 
             try
             {
-                workers[pos].join(1000);
-                pos = (pos + 1) % workers.length;
+                long time_left = mSec - (System.currentTimeMillis() - time_old);
+                if (time_left <= 0)
+                    return true;
+
+                workers[worker_num].join(time_left);
+                worker_num = (worker_num + 1) % workers.length;
             }
             catch (InterruptedException e)
             {
