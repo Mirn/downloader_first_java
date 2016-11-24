@@ -1,0 +1,1 @@
+java -jar downloader_first_java.jar -f test_list.txt -l 850k -n 4 -o test_result
