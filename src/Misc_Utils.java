@@ -100,8 +100,11 @@ final public class Misc_Utils {
             while ((cnt = inputStream.read(buf)) > 0)
             {
                 if (limitter != null)
-                    while (!limitter.check_ready(cnt))
-                        Thread.sleep(1);
+                    synchronized (limitter)
+                    {
+                        while (!limitter.check_ready(cnt))
+                            limitter.wait(1000);//Thread.sleep(1);//
+                    }
 
                 stat_rx.addAndGet(cnt);
 

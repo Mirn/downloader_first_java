@@ -43,6 +43,9 @@ final public class Speed_limitter extends Thread {
                     limit_dlt = speed_limit - current_limit.get();
 
                 current_limit.addAndGet(limit_dlt);
+                synchronized (this) {
+                    this.notifyAll();
+                }
             }
         }
         catch (InterruptedException e)
