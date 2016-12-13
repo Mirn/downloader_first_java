@@ -6,6 +6,7 @@ simple multithread html downloader (demo)
 https://github.com/Ecwid/new-job/blob/master/Console-downloader.md
 
 Сделано:
+
 1. Пакетная Закачка файлов по html 
 2. Многопоточность загрузки задаваемая пользователем
 3. Лимитирование скорости
@@ -13,14 +14,12 @@ https://github.com/Ecwid/new-job/blob/master/Console-downloader.md
 5. Копирование уже скаченных файлов (одинаковых ссылок)
 4. Вывод статистики 
 
-мой проект лежит тут:
-https://github.com/Mirn/downloader_first_java
-
 сделан в среде intellij idea 2016.3
 c build.gradle
 
 при работе если параметры не заданы или с ошибками то выводит хелп
 если параметры нормальные то:
+
 1. выводит все настройки
 2. строку что список ссылок с файлами загружен и проверен на корректность и перечень сбойных строк
 3. начинает закачку
@@ -28,29 +27,30 @@ c build.gradle
 5. после показывает статистику
 
 проверил что:
-работает с 1..32684 потоками
-с скоростью от 1кбайт в сек до INT_MAX
-без декодирования html ссылок как и сказано в ТЗ (без decode)
-для удобства имя файла может быть выровнено пробелами
+* работает с 1..32684 потоками
+* с скоростью от 1кбайт в сек до INT_MAX
+* без декодирования html ссылок как и сказано в ТЗ (без decode)
+* для удобства имя файла может быть выровнено пробелами
 
 Проверял на своём серваке apache, проверил на скорости от 1к до 100мегабит 
 
 Алгоритм лимитирования скорости - модифицированный backet 
+
 1. Поток-арбитр увеличивает атомарный счётчик байт, но до потолка - до заданной скорости
 2. другие потоки этот атомарный счётчик  или уменьшают или если меньше запрошенного кол-ва то ждут через wait
 
 
 пример 
-java -jar downloader_first_java.jar -f test_list.txt -l 850000 -n 4 -o test_result
+`java -jar downloader_first_java.jar -f test_list.txt -l 850000 -n 4 -o test_result
 Params:
 	.Threads_count   : 4
 	.speed_limit_kbs : 850
 	.task_list_fname : test_list.txt
 	.results_dir     : test_result\
 
-Load task list done
+`Load task list done`
 
-T0	T1	T2	T3		Speed
+`T0	T1	T2	T3		Speed
 200240	200240	200240	140168		740147
 320384	340408	322641	719810		961843
 320384	340408	322641	1568706		849408
@@ -66,15 +66,15 @@ T0	T1	T2	T3		Speed
 320384	340408	322641	10070466		850432
 320384	340408	322641	10920386		849920
 320384	340408	322641	11221928		841376
-ALL DONE
+ALL DONE`
 
-Statistics:
+`Statistics:
 files copied     : 8
 files downloaded : 65
 files failed     : 0
 files ignored    : 0
 received total   : 12 205 361 bytes
 work time        : 14.373 sec
-Download speed   : 849 186 bytes/sec
+Download speed   : 849 186 bytes/sec`
 
-Process finished with exit code 0
+`Process finished with exit code 0`
