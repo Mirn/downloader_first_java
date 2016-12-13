@@ -2,8 +2,7 @@
 simple multithread html downloader (demo)
 
 
-"Консольная утилита для скачивания файлов по HTTP протоколу."
-https://github.com/Ecwid/new-job/blob/master/Console-downloader.md
+["Консольная утилита для скачивания файлов по HTTP протоколу."](https://github.com/Ecwid/new-job/blob/master/Console-downloader.md)
 
 Сделано:
 
@@ -41,16 +40,21 @@ c build.gradle
 
 
 пример 
-`java -jar downloader_first_java.jar -f test_list.txt -l 850000 -n 4 -o test_result
+```
+java -jar downloader_first_java.jar -f test_list.txt -l 850000 -n 4 -o test_result
 Params:
 	.Threads_count   : 4
 	.speed_limit_kbs : 850
 	.task_list_fname : test_list.txt
 	.results_dir     : test_result\
+```
 
-`Load task list done`
+```
+Load task list done
+```
 
-`T0	T1	T2	T3		Speed
+```
+T0	T1	T2	T3		Speed
 200240	200240	200240	140168		740147
 320384	340408	322641	719810		961843
 320384	340408	322641	1568706		849408
@@ -66,15 +70,20 @@ Params:
 320384	340408	322641	10070466		850432
 320384	340408	322641	10920386		849920
 320384	340408	322641	11221928		841376
-ALL DONE`
+ALL DONE
+```
 
-`Statistics:
+```
+Statistics:
 files copied     : 8
 files downloaded : 65
 files failed     : 0
 files ignored    : 0
 received total   : 12 205 361 bytes
 work time        : 14.373 sec
-Download speed   : 849 186 bytes/sec`
+Download speed   : 849 186 bytes/sec
+```
 
-`Process finished with exit code 0`
+```
+Process finished with exit code 0
+```
