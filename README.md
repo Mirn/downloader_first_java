@@ -1,8 +1,8 @@
 # downloader_first_java
 simple multithread html downloader (demo)
+#["Консольная утилита для скачивания файлов по HTTP протоколу."](https://github.com/Ecwid/new-job/blob/master/Console-downloader.md)
 
-
-["Консольная утилита для скачивания файлов по HTTP протоколу."](https://github.com/Ecwid/new-job/blob/master/Console-downloader.md)
+по мотивам [этой статьи](https://habrahabr.ru/company/ecwid/blog/315228/)
 
 Сделано:
 
