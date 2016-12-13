@@ -43,10 +43,10 @@ c build.gradle
 ```
 java -jar downloader_first_java.jar -f test_list.txt -l 850000 -n 4 -o test_result
 Params:
-	.Threads_count   : 4
-	.speed_limit_kbs : 850
-	.task_list_fname : test_list.txt
-	.results_dir     : test_result\
+		.Threads_count   : 4
+		.speed_limit_kbs : 850
+		.task_list_fname : test_list.txt
+		.results_dir     : test_result\
 ```
 
 ```
@@ -54,7 +54,7 @@ Load task list done
 ```
 
 ```
-T0	T1	T2	T3		Speed
+T0		T1		T2		T3					Speed
 200240	200240	200240	140168		740147
 320384	340408	322641	719810		961843
 320384	340408	322641	1568706		849408
